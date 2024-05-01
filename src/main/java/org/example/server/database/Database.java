@@ -8,21 +8,13 @@ import java.sql.*;
 import java.util.*;
 
 public class Database implements CRUDRepository {
-
     private static String DB_NAME;
     private static String DB_USER;
     private static String DB_PASSWORD;
-
-
-
-
     private static String DB_URL;
     private static final String DB_DRIVER = "org.postgresql.Driver";
-
     private static Connection con = null;
     private static final Database database;
-
-
 
     static {
         try {
@@ -32,22 +24,6 @@ public class Database implements CRUDRepository {
         }
     }
 
-
-    public static Database database() {
-        return database;
-    }
-
-
-    private Object o;
-
-    public void setConnect() throws SQLException {
-        DB_URL = String.format("jdbc:postgresql://localhost:5432/%s?user=%s&password=%s", DB_NAME, DB_USER, DB_PASSWORD);
-        con = DriverManager.getConnection(DB_URL);
-        con.setAutoCommit(true);
-        System.out.println("База данных подключена");
-    }
-
-
     private Database() throws SQLException {
         try {
             Class.forName(DB_DRIVER);
@@ -56,7 +32,12 @@ public class Database implements CRUDRepository {
             throw new RuntimeException(e);
         }
     }
+    // Getters
+    public static Database database() {
+        return database;
+    }
 
+    // Setters
     public void SET_DB_NAME(String DB_NAME) {
         Database.DB_NAME = DB_NAME;
     }
@@ -69,6 +50,14 @@ public class Database implements CRUDRepository {
         Database.DB_PASSWORD = DB_PASSWORD;
     }
 
+    // Methods
+
+    public void setConnect() throws SQLException {
+        DB_URL = String.format("jdbc:postgresql://localhost:5432/%s?user=%s&password=%s", DB_NAME, DB_USER, DB_PASSWORD);
+        con = DriverManager.getConnection(DB_URL);
+        con.setAutoCommit(true);
+        System.out.println("База данных подключена");
+    }
     private Map readEntity(Class cl, Object oo) throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException, NoSuchFieldException, SQLException {
         Map<String, String> entities = new LinkedHashMap<>();
 
