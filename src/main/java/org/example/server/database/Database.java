@@ -1,13 +1,13 @@
 package org.example.server.database;
 
-import org.example.server.config.DatabaseConfig;
 import org.example.server.tools.CRUDRepository;
-
 import java.lang.reflect.*;
 import java.sql.*;
 import java.util.*;
 
 public class Database implements CRUDRepository {
+    private int id;
+    private String query;
     private static String DB_NAME;
     private static String DB_USER;
     private static String DB_PASSWORD;
@@ -58,9 +58,8 @@ public class Database implements CRUDRepository {
         con.setAutoCommit(true);
         System.out.println("База данных подключена");
     }
-    private Map readEntity(Class cl, Object oo) throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException, NoSuchFieldException, SQLException {
+    private Map readEntity(Class cl, Object oo) throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException, NoSuchFieldException {
         Map<String, String> entities = new LinkedHashMap<>();
-
         for(Field f : cl.getDeclaredFields()) {
             f.setAccessible(true);
             String name = f.get(oo).toString();
@@ -71,10 +70,9 @@ public class Database implements CRUDRepository {
 
     public void addEntityToDB(String tableName, Object o) throws SQLException {
         try {
-            Map<String, String> entities = readEntity(o.getClass(), o);
-            int id = 0;
+            Map entities = readEntity(o.getClass(), o);
             for(int i = 0; i < entities.keySet().size(); i++) {
-                String query = "";
+                query = "";
                 if(entities.keySet().toArray()[i] == "id") {
                     id = Integer.parseInt(entities.values().toArray()[i].toString());
                     query = String.format("INSERT INTO %s (%s) VALUES (%d)", tableName, entities.keySet().toArray()[i], id);
@@ -98,7 +96,7 @@ public class Database implements CRUDRepository {
     }
 
     public void selectAllEntity(String tableName) throws SQLException {
-        String query = String.format("SELECT * FROM %s", tableName);
+        query = String.format("SELECT * FROM %s", tableName);
         PreparedStatement s = con.prepareStatement(query);
         ResultSet rs = s.executeQuery();
         Map<String, String> Entities = new LinkedHashMap<>();
@@ -123,7 +121,7 @@ public class Database implements CRUDRepository {
 
 
     public void addSchema(String nameOfSchema) throws SQLException {
-        String query = String.format("CREATE SCHEMA IF NOT EXISTS %s", nameOfSchema);
+        query = String.format("CREATE SCHEMA IF NOT EXISTS %s", nameOfSchema);
         PreparedStatement s = con.prepareStatement(query);
         s.execute();
         s.close();
@@ -132,7 +130,7 @@ public class Database implements CRUDRepository {
     }
 
     public void dropTable(String tableName) throws SQLException {
-        String query = String.format("DROP TABLE IF EXISTS %s", tableName);
+        query = String.format("DROP TABLE IF EXISTS %s", tableName);
         PreparedStatement s = con.prepareStatement(query);
         s.execute();
         s.close();
@@ -140,8 +138,8 @@ public class Database implements CRUDRepository {
         System.out.println("Таблица успешно ликвидирована");
     }
 
-    public void addTable(String tableName, Class c) throws SQLException, NoSuchFieldException, IllegalAccessException {
-        Map<String, String> fieldValue = new LinkedHashMap<String, String>();
+    public void addTable(String tableName, Class c) throws SQLException {
+        Map<String, String> fieldValue = new LinkedHashMap<>();
         for (Field field : c.getDeclaredFields()) {
             field.setAccessible(true);
             fieldValue.put(field.getName(), field.getType().getTypeName());
@@ -149,7 +147,7 @@ public class Database implements CRUDRepository {
         Object[] keys = fieldValue.keySet().toArray();
         Object[] values = fieldValue.values().toArray();
 
-        String query = String.format("CREATE TABLE IF NOT EXISTS %s ()", tableName.toLowerCase());
+        query = String.format("CREATE TABLE IF NOT EXISTS %s ()", tableName.toLowerCase());
         PreparedStatement s = con.prepareStatement(query);
         s.execute();
         s.close();
@@ -178,14 +176,10 @@ public class Database implements CRUDRepository {
     }
 
     public boolean isTableExists(String tableName) throws SQLException {
-        String query = String.format("SELECT true AS COUNT FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = '%s' LIMIT 1", tableName.toLowerCase());
+        query = String.format("SELECT true AS COUNT FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = '%s' LIMIT 1", tableName.toLowerCase());
         PreparedStatement s = con.prepareStatement(query);
         boolean rs = s.execute();
-        if (rs) {
-            return true;
-        } else {
-            return false;
-        }
+        return rs;
     }
 
 
