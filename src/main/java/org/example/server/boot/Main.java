@@ -1,9 +1,11 @@
 package org.example.server.boot;
 
+import org.example.client.models.User;
 import org.example.client.repos.UserRepository;
 import org.example.client.service.userRep;
 import org.example.server.config.DatabaseConfig;
 import org.example.server.config.SQLConfig;
+import org.example.server.database.CRUDreal;
 import org.example.server.database.Database;
 
 import javax.xml.crypto.Data;
@@ -34,6 +36,9 @@ public class Main {
             database().selectAllEntity("users");
             SQLConfig.SQLConfig();
             System.out.println("Сканирование аннотации завершено, все SQL запросы успешно сделаны");
+            CRUDreal.getCruDreal();
+            new userRep().addEntityToDB("users", new User(1, "Ilya"));
+
         } catch (SQLException e){
             throw new RuntimeException(e);
         }

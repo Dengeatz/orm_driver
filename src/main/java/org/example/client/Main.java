@@ -18,7 +18,6 @@ public class Main {
     public static void main(String[] args) throws NoSuchFieldException, IllegalAccessException, SQLException {
 
             org.example.server.boot.Main.main();
-            database().addEntityToDB("users", new User(1, "Ilya"));
 
 //        userRep ur = new userRep();
 //        ur.addEntityToDB("users", new User(3, "Ilya"));

@@ -5,7 +5,7 @@ import java.lang.reflect.*;
 import java.sql.*;
 import java.util.*;
 
-public class Database implements CRUDRepository {
+public class Database {
     private int id;
     private String query;
     private static String DB_NAME;
@@ -32,6 +32,7 @@ public class Database implements CRUDRepository {
             throw new RuntimeException(e);
         }
     }
+
     // Getters
     public static Database database() {
         return database;
@@ -58,49 +59,31 @@ public class Database implements CRUDRepository {
         con.setAutoCommit(true);
         System.out.println("База данных подключена");
     }
+
     private Map readEntity(Class cl, Object oo) throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException, NoSuchFieldException {
         Map<String, String> entities = new LinkedHashMap<>();
-        for(Field f : cl.getDeclaredFields()) {
+        for (Field f : cl.getDeclaredFields()) {
             f.setAccessible(true);
             String name = f.get(oo).toString();
-            entities.put(f.getName(),name);
+            entities.put(f.getName(), name);
         }
         return entities;
     }
 
-    public void addEntityToDB(String tableName, Object o) throws SQLException {
-        try {
-            Map entities = readEntity(o.getClass(), o);
-            for(int i = 0; i < entities.keySet().size(); i++) {
-                query = "";
-                if(entities.keySet().toArray()[i] == "id") {
-                    id = Integer.parseInt(entities.values().toArray()[i].toString());
-                    query = String.format("INSERT INTO %s (%s) VALUES (%d)", tableName, entities.keySet().toArray()[i], id);
-                } else {
-                    query = String.format("UPDATE %s SET %s = '%s' WHERE id=%d", tableName, entities.keySet().toArray()[i], entities.values().toArray()[i], id);
-                }
-                System.out.println(query);
-                PreparedStatement s = con.prepareStatement(query);
-                s.execute();
-                s.close();
-            }
-        } catch (ClassNotFoundException | NoSuchMethodException | InvocationTargetException | InstantiationException |
-                 IllegalAccessException | NoSuchFieldException e) {
-            throw new RuntimeException(e);
-        }
+
 //        String query = String.format("INSERT INTO %s ()", tableName);
 //        PreparedStatement s = con.prepareStatement(query);
 //        s.execute();
 //        s.close();
 //        System.out.println("d");
-    }
+
 
     public void selectAllEntity(String tableName) throws SQLException {
         query = String.format("SELECT * FROM %s", tableName);
         PreparedStatement s = con.prepareStatement(query);
         ResultSet rs = s.executeQuery();
         Map<String, String> Entities = new LinkedHashMap<>();
-        while(rs.next()) {
+        while (rs.next()) {
             Entities.put(rs.getString("id"), tableName);
         }
         s.close();
@@ -182,7 +165,29 @@ public class Database implements CRUDRepository {
         return rs;
     }
 
-
+    public void addEntityToDB(String tableName, Object o) throws SQLException {
+        try {
+            Map entities = readEntity(o.getClass(), o);
+            for (int i = 0; i < entities.keySet().size(); i++) {
+                Object key = entities.keySet().toArray()[i];
+                Object value = entities.values().toArray()[i];
+                query = "";
+                if (key == "id") {
+                    id = Integer.parseInt(value.toString());
+                    query = String.format("INSERT INTO %s (%s) VALUES (%d)", tableName, key, id);
+                } else {
+                    query = String.format("UPDATE %s SET %s = '%s' WHERE id=%d", tableName, key, value, id);
+                }
+                System.out.println(query);
+                PreparedStatement s = con.prepareStatement(query);
+                s.execute();
+                s.close();
+            }
+        } catch (ClassNotFoundException | NoSuchMethodException | InvocationTargetException | InstantiationException |
+                 IllegalAccessException | NoSuchFieldException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }
 
 
