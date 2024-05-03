@@ -5,7 +5,7 @@ import java.lang.reflect.*;
 import java.sql.*;
 import java.util.*;
 
-public class Database {
+public class Database implements CRUDRepository{
     private int id;
     private String query;
     private static String DB_NAME;
@@ -165,6 +165,7 @@ public class Database {
         return rs;
     }
 
+    @Override
     public void addEntityToDB(String tableName, Object o) throws SQLException {
         try {
             Map entities = readEntity(o.getClass(), o);
@@ -187,6 +188,17 @@ public class Database {
                  IllegalAccessException | NoSuchFieldException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public void getEntity(int id, String tableName, Object o) throws SQLException {
+        query = String.format("SELECT * FROM %s WHERE id=%d", tableName, id);
+        PreparedStatement s = con.prepareStatement(query);
+        ResultSet rs = s.executeQuery();
+        while(rs.next()) {
+
+        }
+        s.close();
     }
 }
 
