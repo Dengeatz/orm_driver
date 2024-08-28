@@ -1,1 +1,1 @@
-ORM Driver for work with database. Obselete!
+ORM Driver for work with database. Obsolete!
